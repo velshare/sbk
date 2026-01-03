@@ -1,0 +1,15 @@
+{
+  "name": "sbk-login",
+  "version": "1.0.0",
+  "description": "SBK Login Portal",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "reset-db": "node reset-db.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mysql2": "^3.6.0",
+    "bcryptjs": "^2.4.3"
+  }
+}

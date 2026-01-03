@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal - SBK</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --card-bg: white;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); 
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .header { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); 
+            color: white; 
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 { 
+            font-size: 1.8rem; 
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .container { 
+            max-width: 1000px; 
+            margin: 2rem auto; 
+            padding: 0 1.5rem; 
+        }
+        
+        .card { 
+            background: var(--card-bg); 
+            border-radius: 16px; 
+            padding: 1.5rem; 
+            margin-bottom: 1.5rem; 
+            box-shadow: var(--card-shadow); 
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+        
+        .stats { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 1.25rem; 
+            margin-bottom: 2rem; 
+        }
+        
+        .stat-card { 
+            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+            color: white; 
+            padding: 1.5rem; 
+            border-radius: 16px; 
+            text-align: center; 
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(67, 97, 238, 0.3);
+        }
+        
+        .stat-number { 
+            font-size: 2.25rem; 
+            font-weight: bold; 
+            margin-bottom: 0.5rem;
+        }
+        
+        .attendance-record { 
+            background: #f8f9fa; 
+            padding: 1rem; 
+            margin-bottom: 0.75rem; 
+            border-radius: 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+        }
+        
+        .attendance-record:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .status { 
+            padding: 0.4rem 0.875rem; 
+            border-radius: 20px; 
+            color: white; 
+            font-size: 0.875rem; 
+            font-weight: 500;
+        }
+        
+        .present { 
+            background: var(--success); 
+        }
+        
+        .absent { 
+            background: var(--danger); 
+        }
+        
+        .marks-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 1rem;
+        }
+        
+        .marks-table th, .marks-table td { 
+            padding: 1rem; 
+            text-align: left; 
+            border-bottom: 1px solid #e1e5e9; 
+        }
+        
+        .marks-table th { 
+            background: #f8f9fa; 
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .marks-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .timetable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .timetable th, .timetable td {
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid #e1e5e9;
+            font-size: 0.9rem;
+        }
+        
+        .timetable th {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .timetable .time-slot {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .timetable .subject-cell {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .timetable .subject-name {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .timetable .faculty-name {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1.25rem 1.5rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .logout-btn {
+                position: static;
+                align-self: flex-end;
+            }
+            
+            .container {
+                padding: 0 1rem;
+                margin: 1.5rem auto;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+            
+            .card {
+                padding: 1.25rem;
+            }
+            
+            .marks-table {
+                font-size: 0.9rem;
+            }
+            
+            .marks-table th, .marks-table td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 1.4rem;
+            }
+            
+            .container {
+                margin: 1rem auto;
+            }
+            
+            .card {
+                padding: 1rem;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .marks-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-user-graduate"></i> Student Portal</h1>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>Welcome, <span id="student-name"></span></h2>
+            <p>Student ID: <span id="student-id"></span> | Class: <span id="student-class"></span></p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="attendance-percentage">0%</div>
+                <div>Attendance</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="total-classes">0</div>
+                <div>Total Classes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="present-classes">0</div>
+                <div>Present</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Subject-wise Attendance</h2>
+            <div id="subject-attendance"></div>
+        </div>
+        
+        <div class="card">
+            <h2>Attendance Records</h2>
+            <div id="attendance-records"></div>
+        </div>
+
+        <div class="card">
+            <h2>My Timetable</h2>
+            <div id="timetable-container"></div>
+        </div>
+        
+        <div class="card">
+            <h2>Marks</h2>
+            <table class="marks-table">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Exam Type</th>
+                        <th>Marks</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="marks-tbody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const studentData = JSON.parse(urlParams.get('user') || '{}');
+
+        document.getElementById('student-name').textContent = studentData.name || 'Student';
+        document.getElementById('student-id').textContent = studentData.id || '';
+        document.getElementById('student-class').textContent = studentData.className || '';
+
+        async function loadAttendance() {
+            if (!studentData.id) return;
+            
+            const response = await fetch(`/student/${studentData.id}/attendance`);
+            const data = await response.json();
+
+            document.getElementById('attendance-percentage').textContent = data.percentage + '%';
+            document.getElementById('total-classes').textContent = data.totalClasses;
+            document.getElementById('present-classes').textContent = data.presentClasses;
+
+            // Display subject-wise attendance
+            const subjectDiv = document.getElementById('subject-attendance');
+            const subjectWiseHtml = Object.keys(data.subjectWise).map(subject => {
+                const subjectData = data.subjectWise[subject];
+                return `
+                    <div class="attendance-record">
+                        <div>
+                            <strong>${subject}</strong><br>
+                            <small>Present: ${subjectData.present}/${subjectData.total} classes</small>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="stat-number" style="font-size: 1.5rem; color: ${subjectData.percentage >= 75 ? '#4cc9f0' : '#f72585'}">${subjectData.percentage}%</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            subjectDiv.innerHTML = subjectWiseHtml || '<p>No subject attendance found.</p>';
+
+            // Display all attendance records
+            const recordsDiv = document.getElementById('attendance-records');
+            recordsDiv.innerHTML = data.attendance.map(record => `
+                <div class="attendance-record">
+                    <div>
+                        <strong>${record.subjectName || 'Subject'}</strong><br>
+                        <small>${new Date(record.date).toLocaleDateString()}</small>
+                    </div>
+                    <span class="status ${record.status}">${record.status.toUpperCase()}</span>
+                </div>
+            `).join('') || '<p>No attendance records found.</p>';
+        }
+
+        async function loadMarks() {
+            if (!studentData.id) return;
+            
+            const response = await fetch(`/student/${studentData.id}/marks`);
+            const marks = await response.json();
+
+            const tbody = document.getElementById('marks-tbody');
+            tbody.innerHTML = marks.map(mark => `
+                <tr>
+                    <td>${mark.subjectName || 'N/A'}</td>
+                    <td>${mark.examType || 'N/A'}</td>
+                    <td>${mark.marks}</td>
+                    <td>${new Date(mark.date).toLocaleDateString()}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="4">No marks available.</td></tr>';
+        }
+
+        function logout() {
+            window.location.href = '/';
+        }
+
+        async function loadTimetable() {
+            if (!studentData.id) return;
+            
+            const response = await fetch(`/student/${studentData.id}/timetable`);
+            const timetable = await response.json();
+            
+            if (timetable.length === 0) {
+                document.getElementById('timetable-container').innerHTML = '<p>No timetable available.</p>';
+                return;
+            }
+            
+            // Create timetable structure
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const timeSlots = ['9-10', '10-11', '11-12', '12-1', '2-3', '3-4', '4-5'];
+            
+            // Create timetable grid
+            const timetableData = {};
+            timetable.forEach(entry => {
+                if (!timetableData[entry.dayOfWeek]) {
+                    timetableData[entry.dayOfWeek] = {};
+                }
+                timetableData[entry.dayOfWeek][entry.timeSlot] = entry;
+            });
+            
+            let tableHtml = '<table class="timetable"><thead><tr><th>Time</th>';
+            days.forEach(day => {
+                tableHtml += `<th>${day}</th>`;
+            });
+            tableHtml += '</tr></thead><tbody>';
+            
+            timeSlots.forEach(timeSlot => {
+                const timeDisplay = timeSlot === '12-1' ? '12:00 - 1:00 PM (Lunch)' : 
+                                  timeSlot.split('-').map(t => {
+                                      const hour = parseInt(t);
+                                      return hour <= 12 ? `${hour}:00 ${hour === 12 ? 'PM' : 'AM'}` : `${hour}:00 PM`;
+                                  }).join(' - ');
+                
+                tableHtml += `<tr><td class="time-slot">${timeDisplay}</td>`;
+                
+                days.forEach(day => {
+                    const entry = timetableData[day] && timetableData[day][timeSlot];
+                    if (entry) {
+                        tableHtml += `<td class="subject-cell">
+                            <div class="subject-name">${entry.subjectName}</div>
+                            <div class="faculty-name">${entry.facultyName || 'TBA'}</div>
+                        </td>`;
+                    } else {
+                        tableHtml += '<td>-</td>';
+                    }
+                });
+                
+                tableHtml += '</tr>';
+            });
+            
+            tableHtml += '</tbody></table>';
+            document.getElementById('timetable-container').innerHTML = tableHtml;
+        }
+        
+        if (studentData.id) {
+            loadAttendance();
+            loadMarks();
+            loadTimetable();
+        }
+    </script>
+</body>
+</html>

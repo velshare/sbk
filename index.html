@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SBK Portal - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            max-width: 1200px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin: 20px;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            color: white;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .hero-section h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .hero-section p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .login-section {
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-header h2 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .portal-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .portal-card {
+            padding: 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .portal-card:hover {
+            border-color: #4361ee;
+            transform: translateY(-2px);
+        }
+
+        .portal-card.active {
+            border-color: #4361ee;
+            background: #f8f9ff;
+        }
+
+        .portal-icon {
+            font-size: 2rem;
+            color: #4361ee;
+            margin-bottom: 10px;
+        }
+
+        .portal-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .portal-desc {
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4361ee;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                grid-template-columns: 1fr;
+                margin: 10px;
+            }
+
+            .hero-section {
+                padding: 40px 30px;
+            }
+
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+
+            .login-section {
+                padding: 40px 30px;
+            }
+
+            .portal-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="login-body">
+    <div class="login-container">
+        <div class="hero-section">
+            <h1>Welcome to SBK Portal</h1>
+            <p>Your comprehensive educational management system for seamless learning and administration.</p>
+            
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600;">Student Management</div>
+                        <div style="font-size: 0.875rem; opacity: 0.8;">Track attendance, grades, and progress</div>
+                    </div>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600;">Faculty Portal</div>
+                        <div style="font-size: 0.875rem; opacity: 0.8;">Manage classes and student records</div>
+                    </div>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600;">Admin Control</div>
+                        <div style="font-size: 0.875rem; opacity: 0.8;">Complete system administration</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="login-section">
+            <div class="login-header">
+                <h2>Sign In</h2>
+                <p>Choose your portal and enter your credentials</p>
+            </div>
+
+            <div class="portal-grid">
+                <div class="portal-card" onclick="selectPortal('student')">
+                    <div class="portal-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="portal-title">Student</div>
+                    <div class="portal-desc">Access your academic records</div>
+                </div>
+
+                <div class="portal-card" onclick="selectPortal('faculty')">
+                    <div class="portal-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <div class="portal-title">Faculty</div>
+                    <div class="portal-desc">Manage your classes</div>
+                </div>
+
+                <div class="portal-card" onclick="selectPortal('admin')">
+                    <div class="portal-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="portal-title">Admin</div>
+                    <div class="portal-desc">System administration</div>
+                </div>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">User ID</label>
+                    <input type="text" id="userId" class="form-input" placeholder="Enter your ID" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-login" id="loginBtn">
+                    <span id="loginText">Sign In</span>
+                    <span id="loginLoader" class="loading" style="display: none;"></span>
+                </button>
+            </form>
+
+            <div id="alertContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedPortal = '';
+
+        function selectPortal(portal) {
+            selectedPortal = portal;
+            
+            // Remove active class from all cards
+            document.querySelectorAll('.portal-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Add active class to selected card
+            event.currentTarget.classList.add('active');
+            
+            // Update form placeholder based on portal
+            const userIdInput = document.getElementById('userId');
+            const placeholders = {
+                student: 'Enter Student ID',
+                faculty: 'Enter Faculty ID', 
+                admin: 'Enter Admin ID'
+            };
+            userIdInput.placeholder = placeholders[portal];
+        }
+
+        function showAlert(message, type = 'error') {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            container.innerHTML = '';
+            container.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        function setLoading(loading) {
+            const btn = document.getElementById('loginBtn');
+            const text = document.getElementById('loginText');
+            const loader = document.getElementById('loginLoader');
+            
+            btn.disabled = loading;
+            text.style.display = loading ? 'none' : 'inline';
+            loader.style.display = loading ? 'inline-block' : 'none';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!selectedPortal) {
+                showAlert('Please select a portal first');
+                return;
+            }
+
+            const userId = document.getElementById('userId').value;
+            const password = document.getElementById('password').value;
+
+            setLoading(true);
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: userId,
+                        password: password,
+                        role: selectedPortal
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('Login successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        if (selectedPortal === 'faculty') {
+                            localStorage.setItem('facultyId', userId);
+                            window.location.href = `/faculty.html?facultyId=${userId}`;
+                        } else if (selectedPortal === 'student') {
+                            const userData = encodeURIComponent(JSON.stringify(result.user));
+                            window.location.href = `/student.html?user=${userData}`;
+                        } else {
+                            window.location.href = result.redirect;
+                        }
+                    }, 1000);
+                } else {
+                    showAlert(result.message || 'Login failed');
+                }
+            } catch (error) {
+                showAlert('Network error. Please try again.');
+            } finally {
+                setLoading(false);
+            }
+        });
+    </script>
+</body>
+</html>

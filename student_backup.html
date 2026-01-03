@@ -1,0 +1,485 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal - SBK</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        .header { background: #7c3aed; color: white; padding: 1rem; text-align: center; }
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+        .card { background: white; border-radius: 8px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; padding: 1.5rem; border-radius: 8px; text-align: center; }
+        .stat-number { font-size: 2rem; font-weight: bold; }
+        .attendance-record { background: #f8f9fa; padding: 1rem; margin-bottom: 0.5rem; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .status { padding: 0.25rem 0.75rem; border-radius: 20px; color: white; font-size: 0.875rem; }
+        .present { background: #16a34a; }
+        .absent { background: #dc2626; }
+        .marks-table { width: 100%; border-collapse: collapse; }
+        .marks-table th, .marks-table td { padding: 1rem; text-align: left; border-bottom: 1px solid #ddd; }
+        .marks-table th { background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-user-graduate"></i> Student Portal</h1>
+        <button onclick="logout()" style="position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">Logout</button>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>Welcome, <span id="student-name"></span></h2>
+            <p>Student ID: <span id="student-id"></span> | Class: <span id="student-class"></span></p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="attendance-percentage">0%</div>
+                <div>Attendance</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="total-classes">0</div>
+                <div>Total Classes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="present-classes">0</div>
+                <div>Present</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Attendance Records</h2>
+            <div id="attendance-records"></div>
+        </div>
+
+        <div class="card">
+            <h2>Marks</h2>
+            <table class="marks-table">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Marks</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="marks-tbody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const studentData = JSON.parse(urlParams.get('user') || '{}');
+
+        document.getElementById('student-name').textContent = studentData.name || 'Student';
+        document.getElementById('student-id').textContent = studentData.id || '';
+        document.getElementById('student-class').textContent = studentData.className || '';
+
+        async function loadAttendance() {
+            if (!studentData.id) return;
+            
+            const response = await fetch(`/student/${studentData.id}/attendance`);
+            const data = await response.json();
+
+            document.getElementById('attendance-percentage').textContent = data.percentage + '%';
+            document.getElementById('total-classes').textContent = data.totalClasses;
+            document.getElementById('present-classes').textContent = data.presentClasses;
+
+            const recordsDiv = document.getElementById('attendance-records');
+            recordsDiv.innerHTML = data.attendance.map(record => `
+                <div class="attendance-record">
+                    <span>${new Date(record.date).toLocaleDateString()}</span>
+                    <span class="status ${record.status}">${record.status.toUpperCase()}</span>
+                </div>
+            `).join('') || '<p>No attendance records found.</p>';
+        }
+
+        async function loadMarks() {
+            if (!studentData.id) return;
+            
+            const response = await fetch(`/student/${studentData.id}/marks`);
+            const marks = await response.json();
+
+            const tbody = document.getElementById('marks-tbody');
+            tbody.innerHTML = marks.map(mark => `
+                <tr>
+                    <td>${mark.subject}</td>
+                    <td>${mark.marks}</td>
+                    <td>${new Date(mark.date).toLocaleDateString()}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="3">No marks available.</td></tr>';
+        }
+
+        function logout() {
+            window.location.href = '/';
+        }
+
+        if (studentData.id) {
+            loadAttendance();
+            loadMarks();
+        }
+    </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal - SBK</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --card-bg: white;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); 
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .header { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); 
+            color: white; 
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 { 
+            font-size: 1.8rem; 
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .container { 
+            max-width: 1000px; 
+            margin: 2rem auto; 
+            padding: 0 1.5rem; 
+        }
+        
+        .card { 
+            background: var(--card-bg); 
+            border-radius: 16px; 
+            padding: 1.5rem; 
+            margin-bottom: 1.5rem; 
+            box-shadow: var(--card-shadow); 
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+        
+        .stats { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 1.25rem; 
+            margin-bottom: 2rem; 
+        }
+        
+        .stat-card { 
+            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+            color: white; 
+            padding: 1.5rem; 
+            border-radius: 16px; 
+            text-align: center; 
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(67, 97, 238, 0.3);
+        }
+        
+        .stat-number { 
+            font-size: 2.25rem; 
+            font-weight: bold; 
+            margin-bottom: 0.5rem;
+        }
+        
+        .attendance-record { 
+            background: #f8f9fa; 
+            padding: 1rem; 
+            margin-bottom: 0.75rem; 
+            border-radius: 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+        }
+        
+        .attendance-record:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .status { 
+            padding: 0.4rem 0.875rem; 
+            border-radius: 20px; 
+            color: white; 
+            font-size: 0.875rem; 
+            font-weight: 500;
+        }
+        
+        .present { 
+            background: var(--success); 
+        }
+        
+        .absent { 
+            background: var(--danger); 
+        }
+        
+        .marks-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 1rem;
+        }
+        
+        .marks-table th, .marks-table td { 
+            padding: 1rem; 
+            text-align: left; 
+            border-bottom: 1px solid #e1e5e9; 
+        }
+        
+        .marks-table th { 
+            background: #f8f9fa; 
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .marks-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1.25rem 1.5rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .logout-btn {
+                position: static;
+                align-self: flex-end;
+            }
+            
+            .container {
+                padding: 0 1rem;
+                margin: 1.5rem auto;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+            
+            .card {
+                padding: 1.25rem;
+            }
+            
+            .marks-table {
+                font-size: 0.9rem;
+            }
+            
+            .marks-table th, .marks-table td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 1.4rem;
+            }
+            
+            .container {
+                margin: 1rem auto;
+            }
+            
+            .card {
+                padding: 1rem;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .marks-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-user-graduate"></i> Student Portal</h1>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>Welcome, <span id="student-name"></span></h2>
+            <p>Student ID: <span id="student-id"></span> | Class: <span id="student-class"></span></p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="attendance-percentage">0%</div>
+                <div>Attendance</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="total-classes">0</div>
+                <div>Total Classes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="present-classes">0</div>
+                <div>Present</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Attendance Records</h2>
+            <div id="attendance-records"></div>
+        </div>
+
+        <div class="card">
+            <h2>Marks</h2>
+            <table class="marks-table">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Marks</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="marks-tbody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // All the JavaScript code remains exactly the same as in your original file
+        const urlParams = new URLSearchParams(window.location.search);
+        const studentData = JSON.parse(urlParams.get('user') || '{}');
+
+        document.getElementById('student-name').textContent = studentData.name || 'Student';
+        document.getElementById('student-id').textContent = studentData.id || '';
+        document.getElementById('student-class').textContent = studentData.className || '';
+
+        async function loadAttendance() {
+            if (!studentData.id) return;
+            
+            const response = await fetch(`/student/${studentData.id}/attendance`);
+            const data = await response.json();
+
+            document.getElementById('attendance-percentage').textContent = data.percentage + '%';
+            document.getElementById('total-classes').textContent = data.totalClasses;
+            document.getElementById('present-classes').textContent = data.presentClasses;
+
+            const recordsDiv = document.getElementById('attendance-records');
+            recordsDiv.innerHTML = data.attendance.map(record => `
+                <div class="attendance-record">
+                    <span>${new Date(record.date).toLocaleDateString()}</span>
+                    <span class="status ${record.status}">${record.status.toUpperCase()}</span>
+                </div>
+            `).join('') || '<p>No attendance records found.</p>';
+        }
+
+        async function loadMarks() {
+            if (!studentData.id) return;
+            
+            const response = await fetch(`/student/${studentData.id}/marks`);
+            const marks = await response.json();
+
+            const tbody = document.getElementById('marks-tbody');
+            tbody.innerHTML = marks.map(mark => `
+                <tr>
+                    <td>${mark.subject}</td>
+                    <td>${mark.marks}</td>
+                    <td>${new Date(mark.date).toLocaleDateString()}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="3">No marks available.</td></tr>';
+        }
+
+        function logout() {
+            window.location.href = '/';
+        }
+
+        if (studentData.id) {
+            loadAttendance();
+            loadMarks();
+        }
+    </script>
+</body>
+</html>

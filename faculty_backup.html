@@ -1,0 +1,615 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Portal - SBK</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        .header { background: #059669; color: white; padding: 1rem; text-align: center; }
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+        .card { background: white; border-radius: 8px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+        .form-control { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; }
+        .btn { background: #059669; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer; }
+        .btn:hover { background: #047857; }
+        .student-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+        .student-card { background: #f8f9fa; padding: 1rem; border-radius: 4px; border-left: 4px solid #059669; }
+        .attendance-btn { background: #dc2626; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; margin: 0.25rem; }
+        .attendance-btn.present { background: #16a34a; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-chalkboard-teacher"></i> Faculty Portal</h1>
+        <button onclick="logout()" style="position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">Logout</button>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>My Assigned Subjects</h2>
+            <div id="assigned-subjects" class="student-grid"></div>
+        </div>
+
+        <div class="card" id="attendance-section" style="display: none;">
+            <h2>Mark Attendance</h2>
+            <p>Date: <span id="current-date"></span></p>
+            <div class="form-group">
+                <label>Select Subject</label>
+                <select id="attendance-subject" class="form-control">
+                    <option value="">Select Subject</option>
+                </select>
+            </div>
+            <div id="students-attendance" class="student-grid"></div>
+        </div>
+
+        <div class="card" id="marks-section" style="display: none;">
+            <h2>Add Marks</h2>
+            <form id="marks-form">
+                <div class="form-group">
+                    <label>Select Subject</label>
+                    <select name="subjectName" id="marks-subject" class="form-control" required>
+                        <option value="">Select Subject</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Exam Type</label>
+                    <select name="examType" class="form-control" required>
+                        <option value="">Select Exam Type</option>
+                        <option value="internal1">Internal 1</option>
+                        <option value="internal2">Internal 2</option>
+                        <option value="semester">Semester</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Select Student</label>
+                    <select name="studentId" id="marks-students" class="form-control" required>
+                        <option value="">Select Student</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Marks</label>
+                    <input type="number" name="marks" class="form-control" min="0" max="100" required>
+                </div>
+                <button type="submit" class="btn">Add Marks</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let assignedSubjects = [];
+        let currentSubject = '';
+        let students = [];
+
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString();
+
+        async function loadAssignedSubjects() {
+            const response = await fetch('/faculty/assigned-subjects');
+            assignedSubjects = await response.json();
+            
+            const subjectsDiv = document.getElementById('assigned-subjects');
+            subjectsDiv.innerHTML = assignedSubjects.map(subject => `
+                <div class="student-card" onclick="selectSubject('${subject.subjectName}', '${subject.department}', '${subject.joinYear}')" style="cursor: pointer;">
+                    <h4>${subject.subjectName}</h4>
+                    <p>Dept: ${subject.department} | Year: ${subject.joinYear}</p>
+                </div>
+            `).join('') || '<div class="student-card">No subjects assigned</div>';
+            
+            // Populate subject dropdowns
+            const attendanceSubject = document.getElementById('attendance-subject');
+            const marksSubject = document.getElementById('marks-subject');
+            
+            const subjectOptions = assignedSubjects.map(s => 
+                `<option value="${s.subjectName}" data-dept="${s.department}" data-year="${s.joinYear}">${s.subjectName} (${s.department} - ${s.joinYear})</option>`
+            ).join('');
+            
+            attendanceSubject.innerHTML = '<option value="">Select Subject</option>' + subjectOptions;
+            marksSubject.innerHTML = '<option value="">Select Subject</option>' + subjectOptions;
+        }
+        
+        function selectSubject(subjectName, department, joinYear) {
+            currentSubject = subjectName;
+            document.getElementById('attendance-section').style.display = 'block';
+            document.getElementById('marks-section').style.display = 'block';
+            
+            // Set selected subject in dropdowns
+            document.getElementById('attendance-subject').value = subjectName;
+            document.getElementById('marks-subject').value = subjectName;
+            
+            loadStudentsForSubject(department, joinYear);
+        }
+        
+        async function loadStudentsForSubject(department, joinYear) {
+            const response = await fetch(`/faculty/students/${department}/${joinYear}`);
+            students = await response.json();
+            
+            updateStudentsList();
+        }
+        
+        function updateStudentsList() {
+            const attendanceDiv = document.getElementById('students-attendance');
+            const marksStudents = document.getElementById('marks-students');
+            
+            attendanceDiv.innerHTML = students.map(student => `
+                <div class="student-card">
+                    <h4>${student.name}</h4>
+                    <p>ID: ${student.id} | Class: ${student.className} | Roll: ${student.rollNo}</p>
+                    <button class="attendance-btn" onclick="markAttendance('${student.id}', 'present')">Present</button>
+                    <button class="attendance-btn" onclick="markAttendance('${student.id}', 'absent')">Absent</button>
+                </div>
+            `).join('');
+            
+            marksStudents.innerHTML = '<option value="">Select Student</option>' + 
+                students.map(s => `<option value="${s.id}">${s.name} (${s.id})</option>`).join('');
+        }
+
+        async function markAttendance(studentId, status) {
+            const subjectName = document.getElementById('attendance-subject').value;
+            if (!subjectName) {
+                alert('Please select a subject first');
+                return;
+            }
+            
+            const response = await fetch('/faculty/attendance', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    studentId,
+                    subjectName,
+                    status,
+                    date: new Date().toISOString().split('T')[0]
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert(`Attendance marked as ${status} for ${subjectName}`);
+            }
+        }
+
+        document.getElementById('marks-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+
+            const response = await fetch('/faculty/marks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            alert(result.success ? 'Marks added successfully' : 'Error adding marks');
+            if (result.success) e.target.reset();
+        });
+
+        function logout() {
+            window.location.href = '/';
+        }
+
+        loadAssignedSubjects();
+    </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Portal - SBK</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --card-bg: white;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); 
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .header { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); 
+            color: white; 
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 { 
+            font-size: 1.8rem; 
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .container { 
+            max-width: 1000px; 
+            margin: 2rem auto; 
+            padding: 0 1.5rem; 
+        }
+        
+        .card { 
+            background: var(--card-bg); 
+            border-radius: 16px; 
+            padding: 1.5rem; 
+            margin-bottom: 1.5rem; 
+            box-shadow: var(--card-shadow); 
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+        
+        .form-group { 
+            margin-bottom: 1.25rem; 
+        }
+        
+        .form-group label { 
+            display: block; 
+            margin-bottom: 0.5rem; 
+            font-weight: 600; 
+            color: #555;
+            font-size: 0.95rem;
+        }
+        
+        .form-control { 
+            width: 100%; 
+            padding: 0.875rem 1rem; 
+            border: 2px solid #e1e5e9; 
+            border-radius: 10px; 
+            font-size: 1rem; 
+            transition: var(--transition); 
+            background: white;
+        }
+        
+        .form-control:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15); 
+        }
+        
+        .btn { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); 
+            color: white; 
+            border: none; 
+            padding: 0.875rem 1.75rem; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: var(--transition); 
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .btn:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 7px 20px rgba(102, 126, 234, 0.4); 
+        }
+        
+        .student-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 1.25rem; 
+            margin-top: 1rem;
+        }
+        
+        .student-card { 
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); 
+            padding: 1.25rem; 
+            border-radius: 12px; 
+            border-left: 4px solid var(--primary); 
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .student-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .attendance-btn { 
+            background: var(--danger); 
+            color: white; 
+            border: none; 
+            padding: 0.5rem 1rem; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            margin: 0.25rem; 
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        
+        .attendance-btn.present { 
+            background: var(--success); 
+        }
+        
+        .attendance-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1.25rem 1.5rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .logout-btn {
+                position: static;
+                align-self: flex-end;
+            }
+            
+            .container {
+                padding: 0 1rem;
+                margin: 1.5rem auto;
+            }
+            
+            .student-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .card {
+                padding: 1.25rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 1.4rem;
+            }
+            
+            .container {
+                margin: 1rem auto;
+            }
+            
+            .card {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-chalkboard-teacher"></i> Faculty Portal</h1>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>My Assigned Subjects</h2>
+            <div id="assigned-subjects" class="student-grid"></div>
+        </div>
+
+        <div class="card" id="attendance-section" style="display: none;">
+            <h2>Mark Attendance</h2>
+            <p>Date: <span id="current-date"></span></p>
+            <div class="form-group">
+                <label>Select Subject</label>
+                <select id="attendance-subject" class="form-control">
+                    <option value="">Select Subject</option>
+                </select>
+            </div>
+            <div id="students-attendance" class="student-grid"></div>
+        </div>
+
+        <div class="card" id="marks-section" style="display: none;">
+            <h2>Add Marks</h2>
+            <form id="marks-form">
+                <div class="form-group">
+                    <label>Select Subject</label>
+                    <select name="subjectName" id="marks-subject" class="form-control" required>
+                        <option value="">Select Subject</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Exam Type</label>
+                    <select name="examType" class="form-control" required>
+                        <option value="">Select Exam Type</option>
+                        <option value="internal1">Internal 1</option>
+                        <option value="internal2">Internal 2</option>
+                        <option value="semester">Semester</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Select Student</label>
+                    <select name="studentId" id="marks-students" class="form-control" required>
+                        <option value="">Select Student</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Marks</label>
+                    <input type="number" name="marks" class="form-control" min="0" max="100" required>
+                </div>
+                <button type="submit" class="btn"><i class="fas fa-plus-circle"></i> Add Marks</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // All the JavaScript code remains exactly the same as in your original file
+        let assignedSubjects = [];
+        let currentSubject = '';
+        let students = [];
+
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString();
+
+        async function loadAssignedSubjects() {
+            const response = await fetch('/faculty/assigned-subjects');
+            assignedSubjects = await response.json();
+            
+            const subjectsDiv = document.getElementById('assigned-subjects');
+            subjectsDiv.innerHTML = assignedSubjects.map(subject => `
+                <div class="student-card" onclick="selectSubject('${subject.subjectName}', '${subject.department}', '${subject.joinYear}')" style="cursor: pointer;">
+                    <h4>${subject.subjectName}</h4>
+                    <p>Dept: ${subject.department} | Year: ${subject.joinYear}</p>
+                </div>
+            `).join('') || '<div class="student-card">No subjects assigned</div>';
+            
+            // Populate subject dropdowns
+            const attendanceSubject = document.getElementById('attendance-subject');
+            const marksSubject = document.getElementById('marks-subject');
+            
+            const subjectOptions = assignedSubjects.map(s => 
+                `<option value="${s.subjectName}" data-dept="${s.department}" data-year="${s.joinYear}">${s.subjectName} (${s.department} - ${s.joinYear})</option>`
+            ).join('');
+            
+            attendanceSubject.innerHTML = '<option value="">Select Subject</option>' + subjectOptions;
+            marksSubject.innerHTML = '<option value="">Select Subject</option>' + subjectOptions;
+        }
+        
+        function selectSubject(subjectName, department, joinYear) {
+            currentSubject = subjectName;
+            document.getElementById('attendance-section').style.display = 'block';
+            document.getElementById('marks-section').style.display = 'block';
+            
+            // Set selected subject in dropdowns
+            document.getElementById('attendance-subject').value = subjectName;
+            document.getElementById('marks-subject').value = subjectName;
+            
+            loadStudentsForSubject(department, joinYear);
+        }
+        
+        async function loadStudentsForSubject(department, joinYear) {
+            const response = await fetch(`/faculty/students/${department}/${joinYear}`);
+            students = await response.json();
+            
+            updateStudentsList();
+        }
+        
+        function updateStudentsList() {
+            const attendanceDiv = document.getElementById('students-attendance');
+            const marksStudents = document.getElementById('marks-students');
+            
+            attendanceDiv.innerHTML = students.map(student => `
+                <div class="student-card">
+                    <h4>${student.name}</h4>
+                    <p>ID: ${student.id} | Class: ${student.className} | Roll: ${student.rollNo}</p>
+                    <button class="attendance-btn present" onclick="markAttendance('${student.id}', 'present')"><i class="fas fa-check"></i> Present</button>
+                    <button class="attendance-btn" onclick="markAttendance('${student.id}', 'absent')"><i class="fas fa-times"></i> Absent</button>
+                </div>
+            `).join('');
+            
+            marksStudents.innerHTML = '<option value="">Select Student</option>' + 
+                students.map(s => `<option value="${s.id}">${s.name} (${s.id})</option>`).join('');
+        }
+
+        async function markAttendance(studentId, status) {
+            const subjectName = document.getElementById('attendance-subject').value;
+            if (!subjectName) {
+                alert('Please select a subject first');
+                return;
+            }
+            
+            const response = await fetch('/faculty/attendance', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    studentId,
+                    subjectName,
+                    status,
+                    date: new Date().toISOString().split('T')[0]
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert(`Attendance marked as ${status} for ${subjectName}`);
+            }
+        }
+
+        document.getElementById('marks-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+
+            const response = await fetch('/faculty/marks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            alert(result.success ? 'Marks added successfully' : 'Error adding marks');
+            if (result.success) e.target.reset();
+        });
+
+        function logout() {
+            window.location.href = '/';
+        }
+
+        loadAssignedSubjects();
+    </script>
+</body>
+</html>
