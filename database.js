@@ -4,8 +4,8 @@ const bcrypt = require('bcryptjs');
 // Database configuration
 const dbConfig = {
     host: 'localhost',
-    user: 'root',
-    password: 'system', // Change this to your MySQL password
+    user: 'sbkuser',
+    password: 'StrongPass@123', // Change this to your MySQL password
     database: 'sbk_portal'
 };
 

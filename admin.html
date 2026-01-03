@@ -7,16 +7,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --primary: #4361ee;
-            --primary-dark: #3a56d4;
-            --secondary: #7209b7;
+            --primary: #dc2626;
+            --primary-dark: #991b1b;
+            --secondary: #dc2626;
             --light: #f8f9fa;
-            --dark: #212529;
-            --success: #4cc9f0;
-            --danger: #f72585;
-            --warning: #f8961e;
+            --dark: #dc2626;
+            --success: #dc2626;
+            --danger: #dc2626;
+            --warning: #dc2626;
             --card-bg: rgba(255, 255, 255, 0.95);
-            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --card-shadow: 0 10px 30px rgba(220, 38, 38, 0.08);
             --transition: all 0.3s ease;
         }
 
@@ -28,7 +28,7 @@
         
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%); 
             min-height: 100vh;
             color: var(--dark);
             line-height: 1.6;
@@ -71,49 +71,153 @@
             padding: 0 1.5rem; 
         }
         
-        .dashboard-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); 
-            gap: 1.5rem; 
+        .main-panel {
+            display: flex;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            min-height: 600px;
         }
         
-        .card { 
-            background: var(--card-bg); 
-            backdrop-filter: blur(20px);
-            border-radius: 16px; 
-            padding: 1.5rem; 
-            box-shadow: var(--card-shadow); 
-            border: 1px solid rgba(255, 255, 255, 0.2); 
-            transition: var(--transition); 
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 2rem 0;
         }
         
-        .card:hover { 
-            transform: translateY(-8px); 
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 3px solid transparent;
         }
         
-        .card-header { 
-            display: flex; 
-            align-items: center; 
-            margin-bottom: 1.5rem; 
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
         }
         
-        .card-header i { 
-            font-size: 1.75rem; 
-            margin-right: 1rem; 
-            color: var(--primary); 
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-left-color: white;
         }
         
-        .card-header h2 { 
-            color: var(--dark); 
-            font-size: 1.4rem; 
-            font-weight: 600;
+        .nav-item i {
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .content-area {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .section-header {
+            margin-bottom: 2rem;
+        }
+        
+        .section-header h2 {
+            color: var(--dark);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .section-header p {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .form-container {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .form-container h3 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .inline-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .user-lists {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .list-container h3 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+        }
+        
+        .search-box {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        
+        .search-box input {
+            padding-right: 2.5rem;
+        }
+        
+        .search-box i {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            pointer-events: none;
+        }
+        
+        .user-item.hidden {
+            display: none;
         }
         
         .form-group { 
-            margin-bottom: 1.25rem; 
+            margin-bottom: 1rem; 
         }
         
         .form-group label { 
@@ -126,10 +230,10 @@
         
         .form-control { 
             width: 100%; 
-            padding: 0.875rem 1rem; 
+            padding: 0.75rem; 
             border: 2px solid #e1e5e9; 
-            border-radius: 10px; 
-            font-size: 1rem; 
+            border-radius: 8px; 
+            font-size: 0.9rem; 
             transition: var(--transition); 
             background: white;
         }
@@ -144,8 +248,8 @@
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); 
             color: white; 
             border: none; 
-            padding: 0.875rem 1.75rem; 
-            border-radius: 10px; 
+            padding: 0.75rem 1.5rem; 
+            border-radius: 8px; 
             cursor: pointer; 
             font-weight: 600; 
             transition: var(--transition); 
@@ -153,6 +257,7 @@
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
+            font-size: 0.9rem;
         }
         
         .btn:hover { 
@@ -335,229 +440,347 @@
             </div>
         </div>
         
-        <div class="dashboard-grid">
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-chalkboard-teacher"></i>
-                    <h2>Create Faculty Account</h2>
-                </div>
-                <form id="faculty-form">
-                    <div class="form-group">
-                        <label>Faculty ID</label>
-                        <input type="text" name="id" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" name="password" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Name</label>
-                        <input type="text" name="name" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" name="email" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn"><i class="fas fa-plus-circle"></i> Create Faculty</button>
-                </form>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-user-graduate"></i>
-                    <h2>Create Student Account</h2>
-                </div>
-                <form id="student-form">
-                    <div class="form-group">
-                        <label>Student ID</label>
-                        <input type="text" name="id" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" name="password" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Name</label>
-                        <input type="text" name="name" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Department</label>
-                        <select name="department" class="form-control" required>
-                            <option value="">Select Department</option>
-                            <option value="TAMIL">TAMIL</option>
-                            <option value="ENGLISH">ENGLISH</option>
-                            <option value="MATHS">MATHS</option>
-                            <option value="COMPUTER SCIENCE">COMPUTER SCIENCE</option>
-                            <option value="INFORMATION TECHNOLOGY">INFORMATION TECHNOLOGY</option>
-                            <option value="BCA">BCA</option>
-                            <option value="CHEMISTRY">CHEMISTRY</option>
-                            <option value="PHYSICAL EDUCATION">PHYSICAL EDUCATION</option>
-                            <option value="HISTORY">HISTORY</option>
-                            <option value="BCOM">BCOM</option>
-                            <option value="BECOM CA">BECOM CA</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Starting Year (UG 3 Years)</label>
-                        <input type="number" name="startYear" class="form-control" placeholder="Enter starting year (e.g., 2025)" min="2020" max="2030" required>
-                        <small>Will automatically create 3-year range (e.g., 2025 → 2025-2028)</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Class</label>
-                        <input type="text" name="className" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Roll Number</label>
-                        <input type="text" name="rollNo" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" name="email" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn"><i class="fas fa-plus-circle"></i> Create Student</button>
-                </form>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
+        <div class="main-panel">
+            <div class="sidebar">
+                <div class="nav-item active" onclick="showSection('users')">
                     <i class="fas fa-users"></i>
-                    <h2>Faculty List</h2>
+                    <span>User Management</span>
                 </div>
-                <div id="faculty-list" class="user-list"></div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-upload"></i>
-                    <h2>Bulk Upload Students</h2>
-                </div>
-                <form id="bulk-upload-form">
-                    <div class="form-group">
-                        <label>Upload CSV File</label>
-                        <input type="file" name="csvFile" class="form-control" accept=".csv" required>
-                        <small>CSV format: id,password,name,department,startYear,className,rollNo,email</small>
-                    </div>
-                    <button type="submit" class="btn"><i class="fas fa-upload"></i> Upload Students</button>
-                </form>
-                <div style="margin-top: 1rem;">
-                    <button class="btn" onclick="downloadTemplate()" style="background: linear-gradient(135deg, #28a745, #20c997);"><i class="fas fa-download"></i> Download CSV Template</button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
+                <div class="nav-item" onclick="showSection('subjects')">
                     <i class="fas fa-book"></i>
-                    <h2>Manage Subjects</h2>
+                    <span>Subjects & Timetable</span>
                 </div>
-                <div class="form-group">
-                    <label>Select Department</label>
-                    <select id="dept-select" class="form-control">
-                        <option value="">Select Department</option>
-                        <option value="TAMIL">TAMIL</option>
-                        <option value="ENGLISH">ENGLISH</option>
-                        <option value="MATHS">MATHS</option>
-                        <option value="COMPUTER SCIENCE">COMPUTER SCIENCE</option>
-                        <option value="INFORMATION TECHNOLOGY">INFORMATION TECHNOLOGY</option>
-                        <option value="BCA">BCA</option>
-                        <option value="CHEMISTRY">CHEMISTRY</option>
-                        <option value="PHYSICAL EDUCATION">PHYSICAL EDUCATION</option>
-                        <option value="HISTORY">HISTORY</option>
-                        <option value="BCOM">BCOM</option>
-                        <option value="BECOM CA">BECOM CA</option>
-                    </select>
+                <div class="nav-item" onclick="showSection('data')">
+                    <i class="fas fa-database"></i>
+                    <span>Data Management</span>
                 </div>
-                <div class="form-group">
-                    <label>Select Year</label>
-                    <select id="year-select" class="form-control" disabled>
-                        <option value="">Select Year</option>
-                    </select>
-                </div>
-                <div id="subject-management" style="display: none;">
-                    <form id="subject-form">
-                        <div class="form-group">
-                            <label>Subject Name</label>
-                            <input type="text" id="subject-name" class="form-control" placeholder="Enter subject name" required>
-                        </div>
-                        <button type="submit" class="btn"><i class="fas fa-plus-circle"></i> Add Subject</button>
-                    </form>
-                    <div id="subjects-list" class="user-list" style="margin-top: 1rem;"></div>
+            </div>
+            
+            <div class="content-area">
+                <!-- User Management Section -->
+                <div id="users-section" class="section active">
+                    <div class="section-header">
+                        <h2>User Management</h2>
+                        <p>Create and manage faculty and student accounts</p>
+                    </div>
                     
-                    <div id="timetable-section" style="margin-top: 2rem; display: none;">
-                        <h3>Create Timetable</h3>
-                        <form id="timetable-form">
-                            <div class="form-group">
-                                <label>Day</label>
-                                <select name="dayOfWeek" class="form-control" required>
-                                    <option value="">Select Day</option>
-                                    <option value="Monday">Monday</option>
-                                    <option value="Tuesday">Tuesday</option>
-                                    <option value="Wednesday">Wednesday</option>
-                                    <option value="Thursday">Thursday</option>
-                                    <option value="Friday">Friday</option>
-                                    <option value="Saturday">Saturday</option>
-                                </select>
+                    <div class="action-buttons">
+                        <button class="btn" onclick="toggleForm('faculty-form-container')"><i class="fas fa-chalkboard-teacher"></i> Add Faculty</button>
+                        <button class="btn" onclick="toggleForm('student-form-container')"><i class="fas fa-user-graduate"></i> Add Student</button>
+                        <button class="btn" onclick="toggleForm('bulk-upload-container')"><i class="fas fa-upload"></i> Bulk Upload</button>
+                    </div>
+                    
+                    <div id="faculty-form-container" class="form-container" style="display: none;">
+                        <h3>Create Faculty Account</h3>
+                        <form id="faculty-form" class="inline-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Faculty ID</label>
+                                    <input type="text" name="id" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Name</label>
+                                    <input type="text" name="name" class="form-control" required>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label>Time Slot</label>
-                                <select name="timeSlot" class="form-control" required>
-                                    <option value="">Select Time</option>
-                                    <option value="9-10">9:00 - 10:00 AM</option>
-                                    <option value="10-11">10:00 - 11:00 AM</option>
-                                    <option value="11-12">11:00 - 12:00 PM</option>
-                                    <option value="12-1">12:00 - 1:00 PM</option>
-                                    <option value="2-3">2:00 - 3:00 PM</option>
-                                    <option value="3-4">3:00 - 4:00 PM</option>
-                                    <option value="4-5">4:00 - 5:00 PM</option>
-                                </select>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Password</label>
+                                    <input type="password" name="password" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" name="email" class="form-control" required>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label>Subject</label>
-                                <select name="subjectName" id="timetable-subjects" class="form-control" required>
-                                    <option value="">Select Subject</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Faculty</label>
-                                <select name="facultyId" id="timetable-faculty" class="form-control" required>
-                                    <option value="">Select Faculty</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn"><i class="fas fa-plus-circle"></i> Add to Timetable</button>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Create Faculty</button>
                         </form>
                     </div>
+                    
+                    <div id="student-form-container" class="form-container" style="display: none;">
+                        <h3>Create Student Account</h3>
+                        <form id="student-form" class="inline-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Student ID</label>
+                                    <input type="text" name="id" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Name</label>
+                                    <input type="text" name="name" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Department</label>
+                                    <select name="department" class="form-control" required>
+                                        <option value="">Select Department</option>
+                                        <option value="TAMIL">TAMIL</option>
+                                        <option value="ENGLISH">ENGLISH</option>
+                                        <option value="MATHS">MATHS</option>
+                                        <option value="COMPUTER SCIENCE">COMPUTER SCIENCE</option>
+                                        <option value="INFORMATION TECHNOLOGY">INFORMATION TECHNOLOGY</option>
+                                        <option value="BCA">BCA</option>
+                                        <option value="CHEMISTRY">CHEMISTRY</option>
+                                        <option value="PHYSICAL EDUCATION">PHYSICAL EDUCATION</option>
+                                        <option value="HISTORY">HISTORY</option>
+                                        <option value="BCOM">BCOM</option>
+                                        <option value="BECOM CA">BECOM CA</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Password</label>
+                                    <input type="password" name="password" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" name="email" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Starting Year</label>
+                                    <input type="number" name="startYear" class="form-control" min="2020" max="2030" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Class</label>
+                                    <input type="text" name="className" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Roll Number</label>
+                                    <input type="text" name="rollNo" class="form-control" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Create Student</button>
+                        </form>
+                    </div>
+                    
+                    <div id="bulk-upload-container" class="form-container" style="display: none;">
+                        <h3>Bulk Upload Students</h3>
+                        <form id="bulk-upload-form" class="inline-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Upload CSV File</label>
+                                    <input type="file" name="csvFile" class="form-control" accept=".csv" required>
+                                    <small>CSV format: id,password,name,department,startYear,className,rollNo,email</small>
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary"><i class="fas fa-upload"></i> Upload</button>
+                                    <button type="button" class="btn" onclick="downloadTemplate()" style="background: #28a745;"><i class="fas fa-download"></i> Template</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="user-lists">
+                        <div class="list-container">
+                            <h3>Faculty List</h3>
+                            <div class="search-box">
+                                <input type="text" id="faculty-search" class="form-control" placeholder="Search faculty by name, ID, or email..." oninput="searchUsers('faculty')">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <div id="faculty-list" class="user-list"></div>
+                        </div>
+                        <div class="list-container">
+                            <h3>Student List</h3>
+                            <div class="search-box">
+                                <input type="text" id="student-search" class="form-control" placeholder="Search students by name, ID, department, class..." oninput="searchUsers('student')">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <div id="student-list" class="user-list"></div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-graduation-cap"></i>
-                    <h2>Student List</h2>
+                
+                <!-- Subjects Section -->
+                <div id="subjects-section" class="section">
+                    <div class="section-header">
+                        <h2>Subjects & Timetable Management</h2>
+                        <p>Manage subjects and create timetables</p>
+                    </div>
+                    
+                    <div class="form-container">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Select Department</label>
+                                <select id="dept-select" class="form-control">
+                                    <option value="">Select Department</option>
+                                    <option value="TAMIL">TAMIL</option>
+                                    <option value="ENGLISH">ENGLISH</option>
+                                    <option value="MATHS">MATHS</option>
+                                    <option value="COMPUTER SCIENCE">COMPUTER SCIENCE</option>
+                                    <option value="INFORMATION TECHNOLOGY">INFORMATION TECHNOLOGY</option>
+                                    <option value="BCA">BCA</option>
+                                    <option value="CHEMISTRY">CHEMISTRY</option>
+                                    <option value="PHYSICAL EDUCATION">PHYSICAL EDUCATION</option>
+                                    <option value="HISTORY">HISTORY</option>
+                                    <option value="BCOM">BCOM</option>
+                                    <option value="BECOM CA">BECOM CA</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Select Year</label>
+                                <select id="year-select" class="form-control" disabled>
+                                    <option value="">Select Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div id="subject-management" style="display: none;">
+                            <form id="subject-form" class="inline-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Subject Name</label>
+                                        <input type="text" id="subject-name" class="form-control" placeholder="Enter subject name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Add Subject</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <div id="subjects-list" class="user-list"></div>
+                            
+                            <div id="timetable-section" style="display: none;">
+                                <h3>Create Timetable</h3>
+                                <form id="timetable-form" class="inline-form">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Day</label>
+                                            <select name="dayOfWeek" class="form-control" required>
+                                                <option value="">Select Day</option>
+                                                <option value="Monday">Monday</option>
+                                                <option value="Tuesday">Tuesday</option>
+                                                <option value="Wednesday">Wednesday</option>
+                                                <option value="Thursday">Thursday</option>
+                                                <option value="Friday">Friday</option>
+                                                <option value="Saturday">Saturday</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Time Slot</label>
+                                            <select name="timeSlot" class="form-control" required>
+                                                <option value="">Select Time</option>
+                                                <option value="9-10">9:00 - 10:00 AM</option>
+                                                <option value="10-11">10:00 - 11:00 AM</option>
+                                                <option value="11-12">11:00 - 12:00 PM</option>
+                                                <option value="12-1">12:00 - 1:00 PM</option>
+                                                <option value="2-3">2:00 - 3:00 PM</option>
+                                                <option value="3-4">3:00 - 4:00 PM</option>
+                                                <option value="4-5">4:00 - 5:00 PM</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Subject</label>
+                                            <select name="subjectName" id="timetable-subjects" class="form-control" required>
+                                                <option value="">Select Subject</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Faculty</label>
+                                            <select name="facultyId" id="timetable-faculty" class="form-control" required>
+                                                <option value="">Select Faculty</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Add to Timetable</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div id="student-list" class="user-list"></div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-trash-alt"></i>
-                    <h2>System Data Management</h2>
+                
+                <!-- Data Management Section -->
+                <div id="data-section" class="section">
+                    <div class="section-header">
+                        <h2>Data Management</h2>
+                        <p>Clear system data and manage records</p>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-danger" onclick="clearAttendance()"><i class="fas fa-calendar-times"></i> Clear Attendance</button>
+                        <button class="btn btn-danger" onclick="clearMarks()"><i class="fas fa-file-alt"></i> Clear Marks</button>
+                        <button class="btn btn-danger" onclick="clearTimetable()"><i class="fas fa-table"></i> Clear Timetables</button>
+                    </div>
                 </div>
-                <div style="display: grid; gap: 1rem;">
-                    <button class="btn" onclick="clearAttendance()" style="background: linear-gradient(135deg, #f72585, #e11d48);"><i class="fas fa-calendar-times"></i> Clear All Attendance</button>
-                    <button class="btn" onclick="clearMarks()" style="background: linear-gradient(135deg, #f72585, #e11d48);"><i class="fas fa-file-alt"></i> Clear All Marks</button>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-table"></i>
-                    <h2>Timetable Management</h2>
-                </div>
-                <button class="btn" onclick="clearTimetable()" style="background: linear-gradient(135deg, #f72585, #e11d48);"><i class="fas fa-table"></i> Clear All Timetables</button>
             </div>
         </div>
     </div>
 
     <script>
+        let allFaculty = [];
+        let allStudents = [];
+        
+        function searchUsers(type) {
+            const searchInput = document.getElementById(type + '-search');
+            const searchTerm = searchInput.value.toLowerCase();
+            const userList = document.getElementById(type + '-list');
+            const users = type === 'faculty' ? allFaculty : allStudents;
+            
+            if (!searchTerm) {
+                displayUsers(type, users);
+                return;
+            }
+            
+            const filteredUsers = users.filter(user => {
+                const searchableText = [
+                    user.name,
+                    user.id,
+                    user.email,
+                    user.department,
+                    user.className,
+                    user.rollNo,
+                    user.joinYear
+                ].filter(Boolean).join(' ').toLowerCase();
+                
+                return searchableText.includes(searchTerm);
+            });
+            
+            displayUsers(type, filteredUsers);
+        }
+        
+        function displayUsers(type, users) {
+            const listElement = document.getElementById(type + '-list');
+            
+            if (type === 'faculty') {
+                listElement.innerHTML = users.map(f => 
+                    `<div class="user-item">
+                        <div><strong>${f.name}</strong> (${f.id})<br><small>${f.email}</small></div>
+                        <button class="btn" onclick="deleteUser('${f.id}')" style="background: #dc2626; padding: 0.5rem 1rem; font-size: 0.8rem;"><i class="fas fa-trash"></i></button>
+                    </div>`
+                ).join('') || '<div class="user-item">No faculty members found</div>';
+            } else {
+                listElement.innerHTML = users.map(s => 
+                    `<div class="user-item">
+                        <div><strong>${s.name}</strong> (${s.id})<br><small>Dept: ${s.department || 'N/A'} | Year: ${s.joinYear || 'N/A'}<br>Class: ${s.className} | Roll: ${s.rollNo}</small></div>
+                        <button class="btn" onclick="deleteUser('${s.id}')" style="background: #dc2626; padding: 0.5rem 1rem; font-size: 0.8rem;"><i class="fas fa-trash"></i></button>
+                    </div>`
+                ).join('') || '<div class="user-item">No students found</div>';
+            }
+        }
+        
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionName + '-section').classList.add('active');
+            
+            // Add active class to clicked nav item
+            event.currentTarget.classList.add('active');
+        }
+        
+        function toggleForm(containerId) {
+            const container = document.getElementById(containerId);
+            container.style.display = container.style.display === 'none' ? 'block' : 'none';
+        }
+
         document.getElementById('faculty-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
@@ -602,21 +825,13 @@
             try {
                 const facultyResponse = await fetch('/admin/users/faculty');
                 const faculty = await facultyResponse.json();
-                document.getElementById('faculty-list').innerHTML = faculty.map(f => 
-                    `<div class="user-item">
-                        <div><strong>${f.name}</strong> (${f.id})<br><small>${f.email}</small></div>
-                        <button class="btn" onclick="deleteUser('${f.id}')" style="background: #f72585; padding: 0.5rem 1rem; font-size: 0.8rem;"><i class="fas fa-trash"></i></button>
-                    </div>`
-                ).join('') || '<div class="user-item">No faculty members found</div>';
+                allFaculty = faculty;
+                displayUsers('faculty', faculty);
 
                 const studentResponse = await fetch('/admin/users/student');
                 const students = await studentResponse.json();
-                document.getElementById('student-list').innerHTML = students.map(s => 
-                    `<div class="user-item">
-                        <div><strong>${s.name}</strong> (${s.id})<br><small>Dept: ${s.department || 'N/A'} | Year: ${s.joinYear || 'N/A'}<br>Class: ${s.className} | Roll: ${s.rollNo}</small></div>
-                        <button class="btn" onclick="deleteUser('${s.id}')" style="background: #f72585; padding: 0.5rem 1rem; font-size: 0.8rem;"><i class="fas fa-trash"></i></button>
-                    </div>`
-                ).join('') || '<div class="user-item">No students found</div>';
+                allStudents = students;
+                displayUsers('student', students);
                 
                 // Update stats
                 document.getElementById('faculty-count').textContent = faculty.length;
